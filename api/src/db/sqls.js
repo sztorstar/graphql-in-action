@@ -1,18 +1,40 @@
+
+const views = {
+  tasksAndUsers: `
+  SELECT t.*,
+    u.id AS "author_id",
+    u.username AS "author_username",
+    u.first_name AS "author_firstName",
+    u.last_name AS "author_lastName",
+    u.created_at AS "author_createdAt"
+  FROM azdev.tasks t
+  JOIN azdev.users u ON (t.user_id = u.id)
+  `,
+};
+
 export default {
   // ------
   // SELECT
 
   tasksLatest: `
-    SELECT id, content, tags, user_id AS "userId", approach_count AS "approachCount", is_private AS "isPrivate", created_at AS "createdAt"
+    SELECT id, content, tags, user_id AS "userId", approach_count AS "approachCount", is_private AS "isPrivate", created_at
     FROM azdev.tasks
     WHERE is_private = FALSE
     ORDER BY created_at DESC
     LIMIT 100
   `,
 
+  tasksMainList: `
+  SELECT id, content, tags, created_at, "author_id", "author_username", "author_firstName", "author_lastName", "author_createdAt"
+  FROM (${views.tasksAndUsers})
+  WHERE is_private = FALSE
+  ORDER BY created_at DESC
+  LIMIT 100
+  `,
+
   // $1: userIds
   usersFromIds: `
-    SELECT id, username, first_name AS "firstName", last_name AS "lastName", created_at AS "createdAt"
+    SELECT id, username, first_name AS "firstName", last_name AS "lastName", created_at  AS "createdAt"
     FROM azdev.users
     WHERE id = ANY ($1)
   `,
@@ -77,6 +99,13 @@ export default {
     FROM azdev.users
     WHERE username = $1
     AND hashed_password = crypt($2, hashed_password)
+  `,
+
+  allUsers: `
+    SELECT u.id as "author_id", u.username, u.first_name AS "firstName", u.last_name AS "lastName", t.*
+    FROM azdev.users u
+    LEFT JOIN azdev.tasks t
+    ON u.id = t.user_id
   `,
 
   // ------
