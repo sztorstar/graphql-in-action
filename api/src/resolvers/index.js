@@ -63,7 +63,7 @@ const resolvers = {
             return source.tags.split(',')
         },
         approachList: ({id}, _, {loaders}) => {
-            return loaders.approachList.load(id);
+            return loaders.approachLists.load(id);
         },
     },
     User: {
@@ -78,7 +78,8 @@ const resolvers = {
         createdAt: (source) => source.createdAt.toISOString(),
         author: (source, _, { pgApi }) => pgApi.userInfo(source.userId),
         // task: (source, _, { loaders}) => loaders.tasks.load(source.taskId)
-        task: (source, _, { pgApi }) => pgApi.taskInfo(source.taskId)
+        task: (source, _, { pgApi }) => pgApi.taskInfo(source.taskId),
+        detailList: (source, _, { loaders }) => loaders.detailLists.load(source.id)
     },
     Mutation: {
         userCreate: async (_, {input}, {mutators}) => {

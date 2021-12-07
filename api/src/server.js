@@ -44,6 +44,7 @@ import * as config from './config';
 import pgApiWrapper from './db/pg-api';
 
 import DataLoader from 'dataloader';
+import mongoApiWrapper from './db/mongo-api';
 
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
@@ -52,6 +53,7 @@ async function startApolloServer() {
   const app = express();
   // const { pgPool } = await pgClient();
   const pgApi = await pgApiWrapper();
+  const mongoApi = await mongoApiWrapper();
 
   app.use(cors());
   app.use(morgan('dev'));
@@ -65,7 +67,8 @@ async function startApolloServer() {
     approachLists: new DataLoader((taskIds) => pgApi.approachLists(taskIds)),
     tasks: new DataLoader((taskIds) => pgApi.tasksInfo(taskIds)),
     tasksByTypes: new DataLoader((types) => pgApi.tasksByTypes(types)),
-    searchResults: new DataLoader((searchTerms) => pgApi.searchResults(searchTerms))
+    searchResults: new DataLoader((searchTerms) => pgApi.searchResults(searchTerms)),
+    detailLists: new DataLoader((approachIds) => mongoApi.detailLists(approachIds))
   };
 
   const mutators = {
